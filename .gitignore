@@ -11,9 +11,9 @@ node_modules
 .env
 
 # cursor
-.cursorrules
+.cursorrules/*
+.cursor
 
 #node_modules
 node_modules
 
-    
