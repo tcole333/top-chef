@@ -1,0 +1,90 @@
+---
+description: project_rules
+globs: *
+---
+
+Original idea:
+I want to build a website for a top chef fantasy league that my friends and I do each year. some of the key features that need to be included are recaps of the past episodes. chef profiles, remaining chefs, a scoreboard that we can implement with a scoring system that we use based on the quickfire wins, competition wins etc. user profiles that show their points and maybe their facebook picture? we currently use facebook messenger to chat so if we could imbed that somehow or build out a similar chat feature. Also the commissioner sends out weekly newsletters so he will need to be able to post those as well. there should also be a page with the past winners of the league for each season, one of the things that we do is when your chef is eliminated from the show and last chance kitchen you have to do a 5 second moonshine chug and if your chef wins in an episode of last chance kitchen they get to give out a shot of moonshine so we should incorporate those somehow. we also should have a rules page where we can display the rules. we do the draft after the first episode and each team gets to choose two chefs so maybe we could include a drafting feature as well.
+
+## 🛠️ Technical Requirements
+
+### Key Functionalities:
+
+- **Episode Recaps:** Blog-style posts, editable by commissioner/admin.
+- **Chef Profiles:** Name, photo, status (active, eliminated, last-chance kitchen), stats (wins, losses, quickfire victories).
+- **Dynamic Scoreboard:** Calculated based on quickfire wins, episode wins, eliminations, and Last Chance Kitchen victories.
+- **User Profiles:** Facebook integration (photo/name), assigned chefs, current points, historical performance.
+- **Chat Integration:** Embed Facebook Messenger or custom chat feature.
+- **Commissioner Newsletters:** Easy posting and editing interface for newsletters.
+- **Historical Archive:** Page listing past league winners.
+- **Moonshine Rules:** Visual indicators and reminders for moonshine chugging/shots.
+- **Rules Page:** Clear and visually appealing rules section.
+- **Drafting Feature:** Interactive draft selection after episode one.
+
+### Suggested Tech Stack:
+
+- Frontend: React, Next.js (SSR/SSG), Tailwind CSS, Firebase Authentication (easy Facebook login integration).
+- Backend/Data Storage: Firebase Firestore (real-time updates, easy querying, scalable).
+- Chat Integration: Facebook Messenger Embed or custom Firebase-based chat system.
+- Hosting: Vercel or Netlify (simple deployment and scalability).
+
+---
+
+## 📌 Micro-Task Breakdown (10–15 min each)
+
+### Phase 1: Initial Setup (Environment & Basics)
+
+1. Create GitHub repository and initialize Next.js project locally (10 min)
+2. Install Tailwind CSS & basic dependencies (10 min)
+3. Set up Firebase project for authentication and database (15 min)
+4. Deploy initial "Hello World" version to Vercel/Netlify (10 min)
+
+### Phase 2: Authentication & User Profiles
+
+1. Enable Google Authentication in Firebase (15 min)
+2. Implement Google Login button in Next.js (15 min) 
+3. Display logged-in user’s Facebook profile picture and name (15 min) (Ignore for now)
+
+### Phase 3: Database Schema & Initial Data
+
+1. Define chef data schema in Firebase (fields: name, photo URL, status, points, etc.) (15 min)
+2. Manually add initial chef profiles to Firestore (15 min)
+3. Define schema for user fantasy teams (user ID, chef IDs, points) (15 min)
+
+### Phase 4: Chef Profile & Scoreboard
+
+1. Implement basic chef profiles page (static placeholders) (15 min)
+2. Fetch and dynamically display chef data from Firebase (15 min)
+3. Create scoreboard layout (static version) (15 min)
+4. Connect scoreboard to Firebase chef and user data (15 min)
+5. Calculate points dynamically based on data (15 min)
+
+### Phase 5: Recaps & Newsletters
+
+1. Create a newsletter/recap schema in Firebase (title, content, date) (10 min)
+2. Implement simple form to create newsletters/recaps (15 min)
+3. Display newsletters/recaps dynamically on homepage (15 min)
+
+### Phase 6: Chat Integration
+
+1. Embed Facebook Messenger widget on site homepage (15 min)
+2. Test sending messages via embedded messenger (10 min)
+
+### Phase 7: League Archive & Rules
+
+1. Design page layout for past league winners (15 min)
+2. Add historical winner data to Firebase manually (15 min)
+3. Fetch and display historical winners dynamically (15 min)
+4. Create static rules page with clean formatting (15 min)
+
+### Phase 8: Drafting Feature
+
+1. Define draft selection schema (user ID, chef ID, draft order) (15 min)
+2. Implement UI for selecting chefs post-episode 1 (15 min)
+3. Store selected chefs in Firebase (15 min)
+4. Display draft selections on user profiles dynamically (15 min)
+
+### Phase 9: Moonshine Rules & Visual Cues
+
+1. Add moonshine indicators/icons to chef profiles (5 sec chug / shot awarded) (15 min)
+2. Visually highlight when users have pending moonshine events (15 min)

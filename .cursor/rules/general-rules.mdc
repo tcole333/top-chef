@@ -1,0 +1,7 @@
+---
+description: devlopment_guidelines
+globs: *
+---
+-this project should use typescript to ensure strict typing
+-responses should address 1 item at a time 
+-the import alias is configured to @/*
