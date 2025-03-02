@@ -1,82 +1,36 @@
 #!/bin/bash
 
-# Navigate to the top_chef_website directory
-cd top_chef_website
+# Create a backup directory
+mkdir -p backup
 
-# Check if there's a nested top_chef_website directory and move its contents up
-if [ -d "top_chef_website" ]; then
-  echo "Moving files from nested top_chef_website directory..."
-  mv top_chef_website/* .
-  rm -rf top_chef_website
-fi
-
-# Check if there's a nested top-chef-fantasy directory and move its contents up
-if [ -d "top-chef-fantasy" ]; then
-  echo "Moving files from nested top-chef-fantasy directory..."
+# Check if root app directory exists and move its contents to src/app
+if [ -d "app" ]; then
+  echo "Moving files from root app directory to src/app..."
   
-  # Move package.json, package-lock.json, and other config files
-  if [ -f "top-chef-fantasy/package.json" ]; then
-    mv top-chef-fantasy/package.json .
+  # First, back up the root app directory
+  cp -r app backup/app_root
+  
+  # Check if src/app exists
+  if [ ! -d "src/app" ]; then
+    mkdir -p src/app
   fi
   
-  if [ -f "top-chef-fantasy/package-lock.json" ]; then
-    mv top-chef-fantasy/package-lock.json .
-  fi
-  
-  if [ -f "top-chef-fantasy/next.config.ts" ]; then
-    mv top-chef-fantasy/next.config.ts .
-  fi
-  
-  if [ -f "top-chef-fantasy/tsconfig.json" ]; then
-    mv top-chef-fantasy/tsconfig.json .
-  fi
-  
-  if [ -f "top-chef-fantasy/postcss.config.mjs" ]; then
-    mv top-chef-fantasy/postcss.config.mjs .
-  fi
-  
-  if [ -f "top-chef-fantasy/eslint.config.mjs" ]; then
-    mv top-chef-fantasy/eslint.config.mjs .
-  fi
-  
-  # Move node_modules if it exists
-  if [ -d "top-chef-fantasy/node_modules" ]; then
-    mv top-chef-fantasy/node_modules .
-  fi
-  
-  # Move public directory if it exists
-  if [ -d "top-chef-fantasy/public" ]; then
-    mv top-chef-fantasy/public .
-  fi
-  
-  # Move src directory if it exists
-  if [ -d "top-chef-fantasy/src" ]; then
-    # If we already have an app directory, we need to be careful
-    if [ -d "app" ] && [ -d "top-chef-fantasy/src/app" ]; then
-      # Move contents of src/app to app if they don't already exist
-      for file in top-chef-fantasy/src/app/*; do
-        filename=$(basename "$file")
-        if [ ! -e "app/$filename" ]; then
-          mv "$file" "app/"
-        fi
-      done
-    else
-      # If no app directory exists, just move the src directory
-      mv top-chef-fantasy/src .
+  # Copy files from root app to src/app if they don't already exist
+  for file in app/*; do
+    filename=$(basename "$file")
+    if [ ! -e "src/app/$filename" ]; then
+      cp -r "$file" "src/app/"
     fi
-  fi
+  done
   
-  # Remove the now-empty top-chef-fantasy directory
-  rm -rf top-chef-fantasy
+  # Remove the root app directory
+  rm -rf app
 fi
 
-# Make sure we have a proper app directory structure
-if [ -d "src/app" ] && [ ! -d "app" ]; then
-  mv src/app .
-  # Remove src directory if it's empty
-  if [ -z "$(ls -A src)" ]; then
-    rm -rf src
-  fi
+# Make sure firebase config is in the right place
+if [ -d "app/firebase" ] && [ ! -d "src/firebase" ]; then
+  mkdir -p src/firebase
+  cp -r app/firebase/* src/firebase/
 fi
 
 echo "Project structure reorganization complete!"

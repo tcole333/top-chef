@@ -1,10 +1,18 @@
+'use client';
+
 import { useAuth } from '@/contexts/AuthContext';
+import { useEffect } from 'react';
 
 export default function LoginButton() {
   const { user, signInWithGoogle, signOut } = useAuth();
+  
+  useEffect(() => {
+    console.log('LoginButton mounted, user:', user);
+  }, [user]);
 
   return (
-    <div>
+    <div className="border border-red-500 p-2">
+      <p className="text-white mb-2 bg-gray-800 p-1 rounded">Login Button Debug:</p>
       {user ? (
         <button
           onClick={signOut}

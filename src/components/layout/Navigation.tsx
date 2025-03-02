@@ -16,11 +16,18 @@ export default function Navigation() {
   ];
 
   if (user) {
-    navItems.push({ name: 'Profile', path: '/profile' });
+    navItems.push(
+      { name: 'Team', path: '/team' },
+      { name: 'Fantasy Team', path: '/fantasy-team' },
+      { name: 'Profile', path: '/profile' }
+    );
+    
+    // Add admin link for all users (in a real app, you'd check for admin role)
+    navItems.push({ name: 'Admin', path: '/admin' });
   }
 
   return (
-    <nav className="bg-gray-700 text-white">
+    <nav className="bg-gray-800 text-white">
       <div className="container mx-auto px-4">
         <ul className="flex space-x-4 overflow-x-auto py-3">
           {navItems.map((item) => (
@@ -30,7 +37,7 @@ export default function Navigation() {
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   pathname === item.path
                     ? 'bg-gray-900 text-white'
-                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    : 'text-gray-100 hover:bg-gray-700 hover:text-white'
                 }`}
               >
                 {item.name}
