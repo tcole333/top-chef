@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import AuthLayout from '@/components/layout/AuthLayout';
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
         <AuthLayout>
           {children}
         </AuthLayout>
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );

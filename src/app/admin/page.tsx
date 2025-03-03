@@ -50,6 +50,13 @@ export default function AdminDashboardPage() {
             <p className="text-gray-700">Populate the database with sample data for testing.</p>
           </div>
         </Link>
+        
+        <Link href="/admin/draft" className="block">
+          <div className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <h2 className="text-xl font-bold mb-2 text-gray-900">Manage Draft</h2>
+            <p className="text-gray-700">Set up and control the fantasy draft.</p>
+          </div>
+        </Link>
       </div>
     </div>
   );

@@ -49,4 +49,25 @@ export interface Team {
   points: number;
   history: PointsHistory[];
   inviteCode?: string;
+  draftPosition?: number;
+  draftComplete?: boolean;
+}
+
+export interface DraftPick {
+  position: number;
+  teamId: string;
+  chefId?: string;
+  timestamp?: any; // Firestore timestamp
+}
+
+export interface DraftSettings {
+  id: string;
+  isActive: boolean;
+  order: string[]; // Array of team IDs in draft order
+  currentPosition: number;
+  round: number;
+  totalRounds: number;
+  picks: DraftPick[];
+  startTime?: any; // Firestore timestamp
+  endTime?: any; // Firestore timestamp
 } 

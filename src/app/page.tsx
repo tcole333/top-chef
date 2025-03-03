@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { getDraftSettings } from '@/firebase/draft';
 
 export default function Home() {
+  const [draftActive, setDraftActive] = useState(false);
+  
   useEffect(() => {
     console.log('Home page mounted');
     console.log('Environment variables:');
@@ -12,6 +16,18 @@ export default function Home() {
     if (typeof window !== 'undefined') {
       console.log('Running in browser');
     }
+    
+    // Check if there's an active draft
+    const checkDraftStatus = async () => {
+      try {
+        const draftSettings = await getDraftSettings();
+        setDraftActive(draftSettings?.isActive || false);
+      } catch (error) {
+        console.error('Error checking draft status:', error);
+      }
+    };
+    
+    checkDraftStatus();
   }, []);
   
   return (
@@ -29,6 +45,14 @@ export default function Home() {
       </section>
       
       {/* Rest of your home page content */}
+      {draftActive && (
+        <div className="mt-8">
+          <h2 className="text-xl font-bold mb-4">Fantasy Draft</h2>
+          <Link href="/draft-status" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+            View Draft Status
+          </Link>
+        </div>
+      )}
     </div>
   );
 } 

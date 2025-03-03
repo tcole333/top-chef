@@ -28,7 +28,7 @@ export default function AdminTeamsPage() {
     const fetchData = async () => {
       try {
         // Fetch teams
-        const teamsQuery = query(collection(db, 'teams'), orderBy('points', 'desc'));
+        const teamsQuery = query(collection(db, 'teams'), orderBy('createdAt', 'desc'));
         const teamsSnapshot = await getDocs(teamsQuery);
         const teamsData = teamsSnapshot.docs.map(doc => doc.data() as Team);
         setTeams(teamsData);
@@ -98,20 +98,20 @@ export default function AdminTeamsPage() {
             <div key={team.id} className="bg-white shadow-md rounded-lg overflow-hidden">
               <div className="bg-gray-100 p-4 border-b">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-bold text-gray-900">{team.name}</h2>
+                  <h2 className="text-xl font-bold text-gray-900">{team.name || 'Unnamed Team'}</h2>
                   <div className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-                    {team.points} Points
+                    {team.points || 0} Points
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mt-1">
-                  Invite Code: <span className="font-mono font-bold">{team.inviteCode}</span>
+                  Invite Code: <span className="font-mono font-bold">{team.inviteCode || 'N/A'}</span>
                 </p>
               </div>
               
               <div className="p-4">
                 <h3 className="font-semibold mb-2 text-gray-900">Team Members</h3>
                 <div className="mb-4">
-                  {team.memberIds.length === 0 ? (
+                  {!team.memberIds || team.memberIds.length === 0 ? (
                     <p className="text-gray-500 text-sm">No members</p>
                   ) : (
                     <ul className="space-y-2">
@@ -123,7 +123,7 @@ export default function AdminTeamsPage() {
                               <div className="relative w-8 h-8 mr-3 rounded-full overflow-hidden">
                                 <Image
                                   src={member.photoURL}
-                                  alt={member.displayName}
+                                  alt={member.displayName || 'User'}
                                   fill
                                   className="object-cover"
                                 />
@@ -131,11 +131,11 @@ export default function AdminTeamsPage() {
                             ) : (
                               <div className="w-8 h-8 mr-3 bg-gray-300 rounded-full flex items-center justify-center">
                                 <span className="text-sm text-gray-600">
-                                  {member.displayName.charAt(0).toUpperCase()}
+                                  {member.displayName ? member.displayName.charAt(0).toUpperCase() : 'U'}
                                 </span>
                               </div>
                             )}
-                            <span className="text-gray-900">{member.displayName}</span>
+                            <span className="text-gray-900">{member.displayName || 'Unknown User'}</span>
                           </li>
                         ) : (
                           <li key={memberId} className="text-gray-500">Unknown user ({memberId})</li>
@@ -147,7 +147,7 @@ export default function AdminTeamsPage() {
                 
                 <h3 className="font-semibold mb-2 text-gray-900">Selected Chefs</h3>
                 <div>
-                  {team.chefs.length === 0 ? (
+                  {!team.chefs || team.chefs.length === 0 ? (
                     <p className="text-gray-500 text-sm">No chefs selected</p>
                   ) : (
                     <ul className="space-y-2">
@@ -158,12 +158,12 @@ export default function AdminTeamsPage() {
                             <div className="relative w-8 h-8 mr-3 rounded-full overflow-hidden">
                               <Image
                                 src={chef.photoURL || 'https://via.placeholder.com/40'}
-                                alt={chef.name}
+                                alt={chef.name || 'Chef'}
                                 fill
                                 className="object-cover"
                               />
                             </div>
-                            <span className="text-gray-900">{chef.name}</span>
+                            <span className="text-gray-900">{chef.name || 'Unknown Chef'}</span>
                             <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
                               chef.status === 'active' ? 'bg-green-100 text-green-800' :
                               chef.status === 'eliminated' ? 'bg-red-100 text-red-800' :

@@ -5,3 +5,4 @@ globs: *
 -this project should use typescript to ensure strict typing
 -responses should address 1 item at a time 
 -the import alias is configured to @/*
+-only return one potential fix at a time in composer mode since they are auto applied

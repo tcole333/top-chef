@@ -6,6 +6,8 @@ import { getActiveChefs, updateUserChefs, updateTeamChefs } from '@/firebase/fir
 import { Chef } from '@/types';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { getDraftSettings, isTeamsTurnToDraft, makeDraftPick } from '@/firebase/draft';
+import { DraftSettings } from '@/types';
 
 export default function FantasyTeamPage() {
   const { user, userProfile, loading } = useAuth();
@@ -16,6 +18,9 @@ export default function FantasyTeamPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [isDraftMode, setIsDraftMode] = useState(false);
+  const [isMyTurn, setIsMyTurn] = useState(false);
+  const [draftSettings, setDraftSettings] = useState<DraftSettings | null>(null);
   
   const MAX_TEAM_SIZE = 3; // Maximum number of chefs a user can select
 
@@ -48,23 +53,87 @@ export default function FantasyTeamPage() {
     }
   }, [userProfile]);
 
-  const handleChefSelection = (chefId: string) => {
-    setSelectedChefs(prev => {
-      // If chef is already selected, remove them
-      if (prev.includes(chefId)) {
-        return prev.filter(id => id !== chefId);
+  useEffect(() => {
+    const checkDraftStatus = async () => {
+      if (userProfile && userProfile.teamId) {
+        try {
+          const settings = await getDraftSettings();
+          if (settings && settings.isActive) {
+            setIsDraftMode(true);
+            setDraftSettings(settings);
+            
+            const myTurn = await isTeamsTurnToDraft(userProfile.teamId);
+            setIsMyTurn(myTurn);
+          } else {
+            setIsDraftMode(false);
+          }
+        } catch (err) {
+          console.error('Error checking draft status:', err);
+        }
+      }
+    };
+    
+    if (userProfile) {
+      checkDraftStatus();
+    }
+  }, [userProfile]);
+
+  const handleChefSelection = async (chefId: string) => {
+    if (isDraftMode) {
+      if (!isMyTurn) {
+        setError("It's not your turn to draft");
+        return;
       }
       
-      // If team is full, show error
-      if (prev.length >= MAX_TEAM_SIZE) {
-        setError(`You can only select up to ${MAX_TEAM_SIZE} chefs for your team.`);
-        return prev;
+      if (!userProfile || !userProfile.teamId || !draftSettings) {
+        return;
       }
       
-      // Add chef to team
+      setIsSaving(true);
       setError('');
-      return [...prev, chefId];
-    });
+      
+      try {
+        await makeDraftPick(draftSettings.id, userProfile.teamId, chefId);
+        setMessage('Draft pick successful!');
+        
+        // Refresh draft status
+        const settings = await getDraftSettings();
+        if (settings) {
+          setDraftSettings(settings);
+          setIsDraftMode(settings.isActive);
+          
+          if (settings.isActive && userProfile.teamId) {
+            const myTurn = await isTeamsTurnToDraft(userProfile.teamId);
+            setIsMyTurn(myTurn);
+          } else {
+            setIsMyTurn(false);
+          }
+        }
+        
+        // Refresh user profile to get updated chefs
+        // This would be handled by your auth context refresh
+      } catch (err) {
+        console.error('Error making draft pick:', err);
+        setError(`Draft pick failed: ${err instanceof Error ? err.message : String(err)}`);
+      } finally {
+        setIsSaving(false);
+      }
+    } else {
+      // Original non-draft selection logic
+      setSelectedChefs(prev => {
+        if (prev.includes(chefId)) {
+          return prev.filter(id => id !== chefId);
+        }
+        
+        if (prev.length >= MAX_TEAM_SIZE) {
+          setError(`You can only select up to ${MAX_TEAM_SIZE} chefs for your team.`);
+          return prev;
+        }
+        
+        setError('');
+        return [...prev, chefId];
+      });
+    }
   };
 
   const handleSaveTeam = async () => {
@@ -128,32 +197,55 @@ export default function FantasyTeamPage() {
         </div>
       )}
       
-      <div className="bg-blue-50 p-4 rounded-md mb-6">
-        <h2 className="font-bold mb-2">Selected Chefs: {selectedChefs.length}/{MAX_TEAM_SIZE}</h2>
-        <div className="flex flex-wrap gap-2">
-          {selectedChefs.length === 0 ? (
-            <p className="text-gray-500">No chefs selected yet</p>
-          ) : (
-            chefs
-              .filter(chef => selectedChefs.includes(chef.id))
-              .map(chef => (
-                <div key={chef.id} className="bg-white px-3 py-1 rounded-full text-sm font-medium">
-                  {chef.name}
-                </div>
-              ))
+      {isDraftMode && (
+        <div className={`mb-6 p-4 rounded-md ${isMyTurn ? 'bg-green-100' : 'bg-yellow-100'}`}>
+          <h2 className="font-bold text-lg mb-2">
+            {isMyTurn ? "It's Your Turn to Draft!" : "Draft in Progress"}
+          </h2>
+          <p className="mb-2">
+            {isMyTurn 
+              ? "Select a chef below to draft them to your team." 
+              : "Please wait for your turn to make a selection."}
+          </p>
+          {draftSettings && (
+            <div className="text-sm">
+              <p>Round: {draftSettings.round} of {draftSettings.totalRounds}</p>
+              <p>Picks made: {draftSettings.picks.length}</p>
+            </div>
           )}
         </div>
-      </div>
+      )}
       
-      <div className="mb-6">
-        <button
-          onClick={handleSaveTeam}
-          disabled={isSaving}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-        >
-          {isSaving ? 'Saving...' : 'Save Team'}
-        </button>
-      </div>
+      {!isDraftMode && (
+        <div className="bg-blue-50 p-4 rounded-md mb-6">
+          <h2 className="font-bold mb-2">Selected Chefs: {selectedChefs.length}/{MAX_TEAM_SIZE}</h2>
+          <div className="flex flex-wrap gap-2">
+            {selectedChefs.length === 0 ? (
+              <p className="text-gray-500">No chefs selected yet</p>
+            ) : (
+              chefs
+                .filter(chef => selectedChefs.includes(chef.id))
+                .map(chef => (
+                  <div key={chef.id} className="bg-white px-3 py-1 rounded-full text-sm font-medium">
+                    {chef.name}
+                  </div>
+                ))
+            )}
+          </div>
+        </div>
+      )}
+      
+      {!isDraftMode && (
+        <div className="mb-6">
+          <button
+            onClick={handleSaveTeam}
+            disabled={isSaving}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+          >
+            {isSaving ? 'Saving...' : 'Save Team'}
+          </button>
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {chefs.map((chef) => (
